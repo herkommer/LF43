@@ -1,0 +1,12 @@
+C:\Users\herkommer\DEV\LF42\Referenslosning\ClaimApp.Domain\bin\Debug\net9.0\ClaimApp.Domain.deps.json
+C:\Users\herkommer\DEV\LF42\Referenslosning\ClaimApp.Domain\bin\Debug\net9.0\ClaimApp.Domain.dll
+C:\Users\herkommer\DEV\LF42\Referenslosning\ClaimApp.Domain\bin\Debug\net9.0\ClaimApp.Domain.pdb
+C:\Users\herkommer\DEV\LF42\Referenslosning\ClaimApp.Domain\obj\Debug\net9.0\ClaimApp.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\herkommer\DEV\LF42\Referenslosning\ClaimApp.Domain\obj\Debug\net9.0\ClaimApp.Domain.AssemblyInfoInputs.cache
+C:\Users\herkommer\DEV\LF42\Referenslosning\ClaimApp.Domain\obj\Debug\net9.0\ClaimApp.Domain.AssemblyInfo.cs
+C:\Users\herkommer\DEV\LF42\Referenslosning\ClaimApp.Domain\obj\Debug\net9.0\ClaimApp.Domain.csproj.CoreCompileInputs.cache
+C:\Users\herkommer\DEV\LF42\Referenslosning\ClaimApp.Domain\obj\Debug\net9.0\ClaimApp.Domain.sourcelink.json
+C:\Users\herkommer\DEV\LF42\Referenslosning\ClaimApp.Domain\obj\Debug\net9.0\ClaimApp.Domain.dll
+C:\Users\herkommer\DEV\LF42\Referenslosning\ClaimApp.Domain\obj\Debug\net9.0\refint\ClaimApp.Domain.dll
+C:\Users\herkommer\DEV\LF42\Referenslosning\ClaimApp.Domain\obj\Debug\net9.0\ClaimApp.Domain.pdb
+C:\Users\herkommer\DEV\LF42\Referenslosning\ClaimApp.Domain\obj\Debug\net9.0\ref\ClaimApp.Domain.dll

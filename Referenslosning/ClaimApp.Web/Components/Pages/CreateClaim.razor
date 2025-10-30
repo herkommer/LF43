@@ -1,0 +1,249 @@
+@page "/create-claim"
+@using ClaimApp.Domain.Entities
+@using ClaimApp.Domain.Enums
+@using ClaimApp.Domain.ValueObjects
+@using ClaimApp.Application.Interfaces
+@using ClaimApp.Application.Exceptions
+@inject IClaimService ClaimService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<h3>Skapa Skadeanmälan</h3>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+
+<div class="card">
+    <div class="card-body">
+        <!-- Claim Type Selection -->
+        <div class="mb-3">
+            <label class="form-label">Typ av skada *</label>
+            <select class="form-select" @bind="selectedType">
+                <option value="">-- Välj typ --</option>
+                <option value="Vehicle">Fordonsskada</option>
+                <option value="Property">Egendomsskada</option>
+                <option value="Travel">Reseskada</option>
+            </select>
+        </div>
+        
+        <!-- Common Fields -->
+        <div class="mb-3">
+            <label class="form-label">Beskrivning * (minst 20 tecken)</label>
+            <textarea class="form-control" rows="4" @bind="description" 
+                      placeholder="Beskriv skadan i detalj..."></textarea>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">Datum för skada *</label>
+            <input type="date" class="form-control" @bind="reportedDate" />
+        </div>
+        
+        <!-- Vehicle-specific Fields -->
+        @if (selectedType == "Vehicle")
+        {
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    Fordonsskada - Specifika uppgifter
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Registreringsnummer * (ABC123)</label>
+                        <input type="text" class="form-control" @bind="vehicleRegistrationNumber" 
+                               placeholder="ABC123" />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Polisanmälan nummer *</label>
+                        <input type="text" class="form-control" @bind="vehiclePoliceReportNumber" />
+                    </div>
+                </div>
+            </div>
+        }
+        
+        <!-- Property-specific Fields -->
+        @if (selectedType == "Property")
+        {
+            <div class="card mb-3">
+                <div class="card-header bg-success text-white">
+                    Egendomsskada - Specifika uppgifter
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Adress *</label>
+                        <input type="text" class="form-control" @bind="propertyAddress" />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Typ av skada *</label>
+                        <select class="form-select" @bind="propertyDamageType">
+                            <option value="">-- Välj --</option>
+                            <option value="Fire">Brand</option>
+                            <option value="Water">Vatten</option>
+                            <option value="Theft">Stöld</option>
+                            <option value="Vandalism">Skadegörelse</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Uppskattat värde (kr) *</label>
+                        <input type="number" class="form-control" @bind="propertyEstimatedValue" />
+                    </div>
+                </div>
+            </div>
+        }
+        
+        <!-- Travel-specific Fields -->
+        @if (selectedType == "Travel")
+        {
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    Reseskada - Specifika uppgifter
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Destination *</label>
+                        <input type="text" class="form-control" @bind="travelDestination" 
+                               placeholder="Land/Stad" />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Startdatum *</label>
+                        <input type="date" class="form-control" @bind="travelStartDate" />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Slutdatum (lämna tomt om resan pågår)</label>
+                        <input type="date" class="form-control" @bind="travelEndDate" />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Typ av incident *</label>
+                        <select class="form-select" @bind="travelIncidentType">
+                            <option value="">-- Välj --</option>
+                            <option value="LostLuggage">Förlorat bagage</option>
+                            <option value="FlightCancellation">Inställt flyg</option>
+                            <option value="MedicalEmergency">Medicinsk nödsituation</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        }
+        
+        <div class="d-grid gap-2">
+            <button class="btn btn-primary btn-lg" @onclick="HandleSubmit" disabled="@isSubmitting">
+                @(isSubmitting ? "Sparar..." : "Skapa skadeanmälan")
+            </button>
+            <button class="btn btn-secondary" @onclick="Cancel">
+                Avbryt
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string selectedType = "";
+    private string description = "";
+    private DateTime reportedDate = DateTime.Today;
+    private string errorMessage = "";
+    private bool isSubmitting = false;
+    
+    // Vehicle fields
+    private string vehicleRegistrationNumber = "";
+    private string vehiclePoliceReportNumber = "";
+    
+    // Property fields
+    private string propertyAddress = "";
+    private string propertyDamageType = "";
+    private decimal propertyEstimatedValue = 0;
+    
+    // Travel fields
+    private string travelDestination = "";
+    private DateTime travelStartDate = DateTime.Today;
+    private DateTime? travelEndDate = null;
+    private string travelIncidentType = "";
+    
+    private async Task HandleSubmit()
+    {
+        errorMessage = "";
+        isSubmitting = true;
+        
+        try
+        {
+            Claim claim = selectedType switch
+            {
+                "Vehicle" => CreateVehicleClaim(),
+                "Property" => CreatePropertyClaim(),
+                "Travel" => CreateTravelClaim(),
+                _ => throw new InvalidOperationException("Välj en skadetyp")
+            };
+            
+            await ClaimService.CreateClaim(claim);
+            Navigation.NavigateTo("/claims");
+        }
+        catch (BusinessRuleViolationException ex)
+        {
+            errorMessage = $"Affärsregel bruten: {ex.Message}";
+        }
+        catch (ArgumentException ex)
+        {
+            errorMessage = $"Valideringsfel: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Ett oväntat fel inträffade: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+    
+    private VehicleClaim CreateVehicleClaim()
+    {
+        return new VehicleClaim(
+            description,
+            reportedDate,
+            new RegistrationNumber(vehicleRegistrationNumber),
+            vehiclePoliceReportNumber
+        );
+    }
+    
+    private PropertyClaim CreatePropertyClaim()
+    {
+        if (!Enum.TryParse<PropertyDamageType>(propertyDamageType, out var damageType))
+            throw new ArgumentException("Välj en skadetyp");
+        
+        return new PropertyClaim(
+            description,
+            reportedDate,
+            propertyAddress,
+            damageType,
+            propertyEstimatedValue
+        );
+    }
+    
+    private TravelClaim CreateTravelClaim()
+    {
+        if (!Enum.TryParse<TravelIncidentType>(travelIncidentType, out var incidentType))
+            throw new ArgumentException("Välj en incidenttyp");
+        
+        var dateRange = new DateRange(travelStartDate, travelEndDate);
+        
+        return new TravelClaim(
+            description,
+            reportedDate,
+            travelDestination,
+            dateRange,
+            incidentType
+        );
+    }
+    
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/claims");
+    }
+}

@@ -1,0 +1,73 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "ClaimApp.Web/1.0.0": {
+        "dependencies": {
+          "ClaimApp.Application": "1.0.0",
+          "ClaimApp.Infrastructure": "1.0.0"
+        },
+        "runtime": {
+          "ClaimApp.Web.dll": {}
+        }
+      },
+      "ClaimApp.Application/1.0.0": {
+        "dependencies": {
+          "ClaimApp.Domain": "1.0.0"
+        },
+        "runtime": {
+          "ClaimApp.Application.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "ClaimApp.Domain/1.0.0": {
+        "runtime": {
+          "ClaimApp.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "ClaimApp.Infrastructure/1.0.0": {
+        "dependencies": {
+          "ClaimApp.Application": "1.0.0",
+          "ClaimApp.Domain": "1.0.0"
+        },
+        "runtime": {
+          "ClaimApp.Infrastructure.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "ClaimApp.Web/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ClaimApp.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ClaimApp.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ClaimApp.Infrastructure/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

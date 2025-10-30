@@ -1,0 +1,113 @@
+@page "/claims"
+@using ClaimApp.Domain.Entities
+@using ClaimApp.Application.Interfaces
+@inject IClaimService ClaimService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<h3>Skadeanmälningar</h3>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="NavigateToCreate">
+        Skapa ny skadeanmälan
+    </button>
+</div>
+
+@if (claims == null)
+{
+    <p><em>Laddar...</em></p>
+}
+else if (!claims.Any())
+{
+    <div class="alert alert-info">
+        Inga skadeanmälningar finns ännu. Skapa din första!
+    </div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Typ</th>
+                <th>Beskrivning</th>
+                <th>Rapporterat</th>
+                <th>Status</th>
+                <th>Åtgärder</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var claim in claims)
+            {
+                <tr>
+                    <td>
+                        @GetClaimTypeDisplay(claim)
+                    </td>
+                    <td>
+                        @(claim.Description.Length > 50 
+                            ? claim.Description.Substring(0, 50) + "..." 
+                            : claim.Description)
+                    </td>
+                    <td>@claim.ReportedDate.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        <span class="badge @GetStatusBadgeClass(claim.Status)">
+                            @GetStatusDisplay(claim.Status)
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-info" 
+                                @onclick="() => NavigateToDetails(claim.Id)">
+                            Detaljer
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<Claim>? claims;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        claims = await ClaimService.GetAllClaims();
+    }
+    
+    private void NavigateToCreate()
+    {
+        Navigation.NavigateTo("/create-claim");
+    }
+    
+    private void NavigateToDetails(Guid id)
+    {
+        Navigation.NavigateTo($"/claim/{id}");
+    }
+    
+    private string GetClaimTypeDisplay(Claim claim) => claim.ClaimType switch
+    {
+        Domain.Enums.ClaimType.Vehicle => "🚗 Fordon",
+        Domain.Enums.ClaimType.Property => "🏠 Egendom",
+        Domain.Enums.ClaimType.Travel => "✈️ Resa",
+        _ => "Okänd"
+    };
+    
+    private string GetStatusDisplay(Domain.Enums.ClaimStatus status) => status switch
+    {
+        Domain.Enums.ClaimStatus.Pending => "Väntande",
+        Domain.Enums.ClaimStatus.Approved => "Godkänd",
+        Domain.Enums.ClaimStatus.Rejected => "Avslagen",
+        Domain.Enums.ClaimStatus.RequiresManualReview => "Kräver granskning",
+        Domain.Enums.ClaimStatus.Escalated => "Eskalerad",
+        _ => status.ToString()
+    };
+    
+    private string GetStatusBadgeClass(Domain.Enums.ClaimStatus status) => status switch
+    {
+        Domain.Enums.ClaimStatus.Pending => "bg-secondary",
+        Domain.Enums.ClaimStatus.Approved => "bg-success",
+        Domain.Enums.ClaimStatus.Rejected => "bg-danger",
+        Domain.Enums.ClaimStatus.RequiresManualReview => "bg-warning",
+        Domain.Enums.ClaimStatus.Escalated => "bg-info",
+        _ => "bg-secondary"
+    };
+}
